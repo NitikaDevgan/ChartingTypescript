@@ -3,6 +3,8 @@ import SalesChart from './Components/SalesChart';
 import { salesData } from './data/salesData';
 import { useSalesData } from './hooks/useSalesData';
 import Loader from './Components/Loader';
+import RevenueBarChart from './Components/RevenueBarChart';
+import RevenuePieChart from './Components/RevenuePieChart';
 
 function App() {
   const { data, loading, error } =  useSalesData();
@@ -13,6 +15,8 @@ function App() {
     <div className="App">
      <h2>Sales Chart</h2>
      <SalesChart data={salesData}/>
+     <RevenueBarChart data={salesData}/>
+     <RevenuePieChart data={salesData}/>
     </div>
   );
 }
