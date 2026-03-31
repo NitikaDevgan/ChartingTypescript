@@ -3,7 +3,8 @@ import { SalesData } from "../types/chartTypes";
 export const getfetchSalesData = async (): Promise<SalesData[]> => {
   return new Promise((resolve,reject) => {
     setTimeout(() => {
-        const fail = Math.random() < 5.0; //50% fail
+        // const fail = Math.random() < 5.0; 50% fail
+        const fail = false;
         if (fail) {
             reject(new Error("Network Error, Please try later."));
         }else {
