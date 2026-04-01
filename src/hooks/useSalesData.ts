@@ -1,26 +1,48 @@
-import { useEffect, useState } from "react"
-import { ApiState } from "../types/chartTypes"
-import { fetchSalesData } from "../Services/api"
+import { useEffect, useState } from "react";
+import { ApiState } from "../types/chartTypes";
+import { fetchSalesData } from "../Services/api";
+
 
 export const useSalesData = () => {
-    const [state, setState] = useState<ApiState>({
-        data:[],
-        loading: true,
-        error: null
-    })
+  const [state, setState] = useState<ApiState>({
+    data: [],
+    loading: true,
+    error: null,
+  });
 
+  // ✅ Reusable function (IMPORTANT)
+  const getData = async () => {
+    setState((prev) => ({
+      ...prev,
+      loading: true,
+      error: null,
+    }));
 
-useEffect(() => {
-    const fetchData = async () => {
-        try {
-            const data = await fetchSalesData();
-            setState({ data, loading: false, error: null});
-        } catch (error) {
-            setState({ data:[], loading: false, error: "Failed to fetch data"});
-        }
-    };
-    fetchData();
-},[]);
+    try {
+      const data = await fetchSalesData();
 
-return state;
-}
+      setState({
+        data,
+        loading: false,
+        error: null,
+      });
+    } catch (error) {
+      setState({
+        data: [],
+        loading: false,
+        error: "Failed to fetch data",
+      });
+    }
+  };
+
+  // ✅ Initial call
+  useEffect(() => {
+    getData();
+  }, []);
+
+  // ✅ Return retry correctly
+  return {
+    ...state,
+    retry: getData, // ✅ correct
+  };
+};

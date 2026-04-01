@@ -1,56 +1,116 @@
-import './App.css';
-import SalesChart from './Components/SalesChart';
-import { salesData } from './data/salesData';
-import { useSalesData } from './hooks/useSalesData';
-import Loader from './Components/Loader';
-import RevenueBarChart from './Components/RevenueBarChart';
-import RevenuePieChart from './Components/RevenuePieChart';
+
+import Card from "./Components/Card";
+import Loader from "./Components/Loader";
+import RevenueBarChart from "./Components/RevenueBarChart";
+import RevenuePieChart from "./Components/RevenuePieChart";
+import SalesChart from "./Components/SalesChart";
+import { useSalesData } from "./hooks/useSalesData";
+
+const container = {
+  background: "#f9fafb",
+  minHeight: "100vh",
+  padding: "20px",
+  fontFamily: "sans-serif",
+};
+
+const header = {
+  marginBottom: "20px",
+};
+
+const summaryGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+  gap: "16px",
+  marginBottom: "20px",
+};
+
+const chartGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, 1fr)",
+  gap: "20px",
+};
 
 const cardStyle = {
-  background: "#fff",
+  background: "#ffffff",
   padding: "16px",
   borderRadius: "12px",
-  boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+};
+
+const centerStyle = {
+  display: "flex",
+  flexDirection: "column" as const,
+  alignItems: "center",
+  justifyContent: "center",
+  height: "100vh",
+};
+
+const buttonStyle = {
+  padding: "10px 16px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#4f46e5",
+  color: "#fff",
+  cursor: "pointer",
 };
 
 
 function App() {
-  const { data, loading, error } =  useSalesData();
+  const { data, loading, error, retry } = useSalesData();
 
   if (loading) return <Loader />;
-  if (error) return <div>{error}</div>;
+
+  if (error)
+    return (
+      <div style={centerStyle}>
+        <h3>⚠️ Something went wrong</h3>
+        <button onClick={retry} style={buttonStyle}>
+          Retry
+        </button>
+      </div>
+    );
+
+  const totalRevenue = data.reduce((acc, d) => acc + d.revenue, 0);
+  const bestMonth = data.reduce((max, d) =>
+    d.revenue > max.revenue ? d : max
+  ).month;
+
+  const avgRevenue = Math.floor(totalRevenue / data.length);
+
   return (
-   <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-  <h2 style={{ marginBottom: "20px" }}>📊 Analytics Dashboard</h2>
+    <div style={container}>
+      {/* Header */}
+      <div style={header}>
+        <h2>📊 Analytics Dashboard</h2>
+      </div>
 
-  <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-      gap: "20px",
-    }}
-  >
-    <div style={cardStyle}>
-      <h3>Sales Trend</h3>
-      <SalesChart data={data} />
+      {/* Summary Cards */}
+      <div style={summaryGrid}>
+        <Card title="Total Revenue" value={`₹ ${totalRevenue}`} />
+        <Card title="Best Month" value={bestMonth} />
+        <Card title="Avg Revenue" value={`₹ ${avgRevenue}`} />
+        <Card title="Growth" value="+12%" />
+      </div>
+
+      {/* Charts */}
+      <div style={chartGrid}>
+        <div style={{ ...cardStyle, gridColumn: "span 2" }}>
+          <h3>Sales Trend</h3>
+          <SalesChart data={data} />
+        </div>
+
+        <div style={cardStyle}>
+          <h3>Revenue Bar</h3>
+          <RevenueBarChart data={data} />
+        </div>
+
+        <div style={cardStyle}>
+          <h3>Revenue Distribution</h3>
+          <RevenuePieChart data={data} />
+        </div>
+      </div>
     </div>
-
-    <div style={cardStyle}>
-      <h3>Revenue Bar</h3>
-      <RevenueBarChart data={data} />
-    </div>
-
-    <div style={cardStyle}>
-      <h3>Revenue Distribution</h3>
-      <RevenuePieChart data={data} />
-    </div>
-  </div>
-</div>
-
   );
 }
 
 export default App;
-
-
-
