@@ -11,38 +11,36 @@ export const useSalesData = () => {
 
   const MAX_RETRIES = 3;
 
-  const getData = async (retryCount = 0) => {
-    setState((prev) => ({
-      ...prev,
-      loading: true,
+const getData = async (retryCount = 0) => {
+  setState((prev) => ({
+    ...prev,
+    loading: true,
+    error: null,
+  }));
+
+  try {
+    const data = await fetchSalesData();
+
+    setState({
+      data,
+      loading: false,
       error: null,
-    }));
-
-    try {
-      const data = await fetchSalesData();
-
+    });
+  } catch (error) {
+    if (retryCount < 3) {
+      setTimeout(() => {
+        getData(retryCount + 1);
+      }, 1000);
+    } else {
       setState({
-        data,
+        data: [],
         loading: false,
-        error: null,
+        error: "Failed after retries ❌",
       });
-    } catch (error) {
-      if (retryCount < MAX_RETRIES) {
-        console.log(`Retrying... Attempt ${retryCount + 1}`);
-        
-        // ⏳ small delay before retry
-        setTimeout(() => {
-          getData(retryCount + 1);
-        }, 1000);
-      } else {
-        setState({
-          data: [],
-          loading: false,
-          error: "Failed after 3 retries ❌",
-        });
-      }
     }
-  };
+  }
+};
+
 
   useEffect(() => {
     getData();

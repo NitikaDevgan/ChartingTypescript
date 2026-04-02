@@ -61,14 +61,24 @@ function App() {
   if (loading) return <Loader />;
 
   if (error)
-    return (
-      <div style={centerStyle}>
-        <h3>⚠️ Something went wrong</h3>
-        <button onClick={retry} style={buttonStyle}>
-          Retry
-        </button>
-      </div>
-    );
+  return (
+    <div style={centerStyle}>
+      <h3>⚠️ Something went wrong</h3>
+
+      <button
+        onClick={retry}
+        disabled={loading}
+        style={{
+          ...buttonStyle,
+          background: loading ? "#9ca3af" : "#4f46e5",
+          cursor: loading ? "not-allowed" : "pointer",
+        }}
+      >
+        {loading ? "Retrying..." : "Retry"}
+      </button>
+    </div>
+  );
+
 
   const totalRevenue = data.reduce((acc, d) => acc + d.revenue, 0);
   const bestMonth = data.reduce((max, d) =>
